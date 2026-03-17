@@ -297,6 +297,10 @@ export async function getUrlContentHash(
 	}
 }
 
+export function buildObsidianLink(vault: string, noteId: number): string {
+	return `obsidian://advanced-uri?vault=${encodeURIComponent(vault)}&block=${noteId}`
+}
+
 export function urlToHostAndPort(url: string): undefined | { host: string; port: number } {
 	const parsedUrl = safeParseUrl(url)
 	return parsedUrl === undefined

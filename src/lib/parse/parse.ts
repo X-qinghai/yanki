@@ -16,6 +16,7 @@ import {
 	getDefaultFileAdapter,
 } from '../shared/types'
 import { validateAndSanitizeNamespace } from '../utilities/namespace'
+import { buildObsidianLink } from '../utilities/url'
 import { mdastToHtml } from './rehype-utilities'
 import {
 	deleteFirstNodeOfType,
@@ -260,6 +261,10 @@ export async function getNoteFromMarkdown(
 			Back: back,
 			...(extra !== undefined && { Extra: extra }),
 			Front: front,
+			ObsidianLink:
+				obsidianVault !== undefined && frontmatter.noteId !== undefined
+					? buildObsidianLink(obsidianVault, frontmatter.noteId)
+					: '',
 			YankiNamespace: sanitizedNamespace,
 		},
 		modelName,

@@ -10,12 +10,14 @@ import {
 	areNotesEqual,
 	deleteNotes,
 	deleteOrphanedDecks,
+	ensureObsidianLinkField,
 	getRemoteNotes,
 	reconcileMedia,
 	requestPermission,
 	syncToAnkiWeb,
 	updateNote,
 } from '../utilities/anki-connect'
+import { buildObsidianLink } from '../utilities/url'
 import { validateAndSanitizeNamespace } from '../utilities/namespace'
 
 export type SyncedNote = {
@@ -31,6 +33,7 @@ export type SyncNotesOptions = Pick<
 	| 'dryRun'
 	| 'fileAdapter'
 	| 'namespace'
+	| 'obsidianVault'
 	| 'strictMatching'
 >
 
@@ -74,6 +77,7 @@ export async function syncNotes(
 		dryRun,
 		fileAdapter,
 		namespace,
+		obsidianVault,
 		strictMatching,
 	} = deepmerge(defaultSyncNotesOptions, options ?? {}) as SyncNotesOptions
 
@@ -101,6 +105,8 @@ export async function syncNotes(
 			})),
 		}
 	}
+
+	await ensureObsidianLinkField(client, dryRun)
 
 	// Set undefined local note decks to the default
 	for (const localNote of allLocalNotesCopy) {
@@ -179,6 +185,20 @@ export async function syncNotes(
 					dryRun,
 					fileAdapter ?? undefined,
 				)
+
+				// Backfill ObsidianLink now that we have the noteId
+				if (!dryRun && obsidianVault && localNote.noteId) {
+					localNote.fields.ObsidianLink = buildObsidianLink(obsidianVault, localNote.noteId)
+					await client.note.updateNoteModel({
+						note: {
+							fields: localNote.fields,
+							id: localNote.noteId,
+							modelName: localNote.modelName,
+							tags: localNote.tags ?? [],
+						},
+					})
+				}
+
 				synced.push({
 					action: 'created',
 					note: localNote,

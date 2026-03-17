@@ -165,6 +165,7 @@ export async function syncFiles(
 			dryRun,
 			fileAdapter,
 			namespace,
+			obsidianVault,
 			strictMatching,
 		},
 	)

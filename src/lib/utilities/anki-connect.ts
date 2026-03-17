@@ -215,15 +215,15 @@ export async function updateNote(
 }
 
 /**
- * Helper to compare local and remote field contents.
+ * Helper to compare local and remote field contents, including ObsidianLink.
+ * Used for update detection in updateNote.
  * @returns True if the fields are equal, false otherwise.
  */
 function areFieldsEqual(
 	localFields: Record<string, string>,
 	remoteFields: Record<string, string>,
 ): boolean {
-	// Limit to front and back keys at the moment
-	const keys = ['Front', 'Back', 'Extra']
+	const keys = ['Front', 'Back', 'Extra', 'ObsidianLink']
 
 	for (const key of keys) {
 		// Both fields have the key (e.g. Extra)
@@ -241,12 +241,38 @@ function areFieldsEqual(
 	return true
 }
 
+/**
+ * Helper to compare only content fields (Front, Back, Extra), excluding
+ * derived fields like ObsidianLink. Used for content-based note matching
+ * to avoid false mismatches when ObsidianLink hasn't been backfilled yet.
+ * @returns True if the content fields are equal, false otherwise.
+ */
+function areContentFieldsEqual(
+	localFields: Record<string, string>,
+	remoteFields: Record<string, string>,
+): boolean {
+	const keys = ['Front', 'Back', 'Extra']
+
+	for (const key of keys) {
+		if (key in localFields && key in remoteFields) {
+			if (localFields[key].normalize('NFC') !== remoteFields[key].normalize('NFC')) {
+				return false
+			}
+		} else if (key in localFields || key in remoteFields) {
+			return false
+		}
+	}
+
+	return true
+}
+
 export function areNotesEqual(noteA: YankiNote, noteB: YankiNote, includeId = true): boolean {
 	// Early exit on simple comparisons before expensive field/tag checks
 	if (includeId && noteA.noteId !== noteB.noteId) return false
 	if (noteA.deckName !== noteB.deckName) return false
 	if (noteA.modelName !== noteB.modelName) return false
-	if (!areFieldsEqual(noteA.fields, noteB.fields)) return false
+	// Use content-only comparison to avoid false mismatches due to ObsidianLink
+	if (!areContentFieldsEqual(noteA.fields, noteB.fields)) return false
 	if (!areTagsEqual(noteA.tags ?? [], noteB.tags ?? [])) return false
 	return true
 }
@@ -439,6 +465,9 @@ async function getRemoteNotesById(
 				Back: ankiNote.fields.Back.value ?? '',
 				...(ankiNote.fields.Extra !== undefined && { Extra: ankiNote.fields.Extra.value ?? '' }),
 				Front: ankiNote.fields.Front.value ?? '',
+				...(ankiNote.fields.ObsidianLink !== undefined && {
+					ObsidianLink: ankiNote.fields.ObsidianLink.value ?? '',
+				}),
 				YankiNamespace: ankiNote.fields.YankiNamespace.value ?? '',
 			},
 			modelName: ankiNote.modelName as YankiModelName, // Checked above
@@ -791,5 +820,35 @@ export async function syncToAnkiWeb(client: YankiConnect): Promise<void> {
 		// E.g. offline
 		// TODO richer errors here
 		console.warn('Could not sync to AnkiWeb.')
+	}
+}
+
+/**
+ * Ensures all Yanki Anki models have the ObsidianLink field.
+ * Adds the field to any existing models that are missing it, preserving field order.
+ * Safe to call on every sync — exits immediately if the field already exists.
+ */
+export async function ensureObsidianLinkField(
+	client: YankiConnect,
+	dryRun = false,
+): Promise<void> {
+	for (const model of yankiModels) {
+		let remoteFields: string[]
+		try {
+			remoteFields = await client.model.modelFieldNames({ modelName: model.modelName })
+		} catch {
+			// Model doesn't exist yet — will be created with the correct fields on first sync
+			continue
+		}
+
+		if (!remoteFields.includes('ObsidianLink')) {
+			if (!dryRun) {
+				await client.model.modelFieldAdd({
+					fieldName: 'ObsidianLink',
+					index: [...model.inOrderFields].indexOf('ObsidianLink'),
+					modelName: model.modelName,
+				})
+			}
+		}
 	}
 }

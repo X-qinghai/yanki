@@ -8,12 +8,12 @@ export const yankiModels = [
 	{
 		cardTemplates: [
 			{
-				Back: '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}',
+				Back: '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}{{#ObsidianLink}}\n\n<hr>\n\n{{ObsidianLink}}{{/ObsidianLink}}',
 				Front: '{{Front}}',
 				YankiNamespace: '{{YankiNamespace}}',
 			},
 		],
-		inOrderFields: ['Front', 'Back', 'YankiNamespace'],
+		inOrderFields: ['Front', 'Back', 'ObsidianLink', 'YankiNamespace'],
 		modelName: 'Yanki - Basic',
 	},
 	{
@@ -21,40 +21,40 @@ export const yankiModels = [
 		// simplicity (instead of Text and Back Extra, we just have Back and Front)
 		cardTemplates: [
 			{
-				Back: '{{cloze:Front}}<br>\n{{Back}}',
+				Back: '{{cloze:Front}}<br>\n{{Back}}{{#ObsidianLink}}\n\n<hr>\n\n{{ObsidianLink}}{{/ObsidianLink}}',
 				Front: '{{cloze:Front}}',
 				YankiNamespace: '{{YankiNamespace}}',
 			},
 		],
-		inOrderFields: ['Front', 'Back', 'YankiNamespace'],
+		inOrderFields: ['Front', 'Back', 'ObsidianLink', 'YankiNamespace'],
 		isCloze: true,
 		modelName: 'Yanki - Cloze',
 	},
 	{
 		cardTemplates: [
 			{
-				Back: '{{Front}}\n\n<hr id=answer>\n\n{{type:Back}}',
+				Back: '{{Front}}\n\n<hr id=answer>\n\n{{type:Back}}{{#ObsidianLink}}\n\n<hr>\n\n{{ObsidianLink}}{{/ObsidianLink}}',
 				Front: '{{Front}}\n\n{{type:Back}}',
 				YankiNamespace: '{{YankiNamespace}}',
 			},
 		],
-		inOrderFields: ['Front', 'Back', 'YankiNamespace'],
+		inOrderFields: ['Front', 'Back', 'ObsidianLink', 'YankiNamespace'],
 		modelName: 'Yanki - Basic (type in the answer)',
 	},
 	{
 		cardTemplates: [
 			{
-				Back: '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}{{#Extra}}\n\n<hr>\n\n{{Extra}}{{/Extra}}',
+				Back: '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}{{#Extra}}\n\n<hr>\n\n{{Extra}}{{/Extra}}{{#ObsidianLink}}\n\n<hr>\n\n{{ObsidianLink}}{{/ObsidianLink}}',
 				Front: '{{Front}}',
 				YankiNamespace: '{{YankiNamespace}}',
 			},
 			{
-				Back: '{{FrontSide}}\n\n<hr id=answer>\n\n{{Front}}{{#Extra}}\n\n<hr>\n\n{{Extra}}{{/Extra}}',
+				Back: '{{FrontSide}}\n\n<hr id=answer>\n\n{{Front}}{{#Extra}}\n\n<hr>\n\n{{Extra}}{{/Extra}}{{#ObsidianLink}}\n\n<hr>\n\n{{ObsidianLink}}{{/ObsidianLink}}',
 				Front: '{{Back}}',
 				YankiNamespace: '{{YankiNamespace}}',
 			},
 		],
-		inOrderFields: ['Front', 'Back', 'Extra', 'YankiNamespace'],
+		inOrderFields: ['Front', 'Back', 'Extra', 'ObsidianLink', 'YankiNamespace'],
 		modelName: 'Yanki - Basic (and reversed card with extra)',
 	},
 ] as const satisfies YankiModel[]

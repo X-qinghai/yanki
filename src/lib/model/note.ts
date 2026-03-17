@@ -7,9 +7,10 @@ export type YankiNote = Simplify<
 		cards?: number[]
 		fields: {
 			Back: string
-			// Currently onl Yanki - Basic (and reversed card with extra) has this field
+			// Currently only Yanki - Basic (and reversed card with extra) has this field
 			Extra?: string
 			Front: string
+			ObsidianLink?: string
 			YankiNamespace: string
 		}
 		modelName: YankiModelName
