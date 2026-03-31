@@ -8,12 +8,12 @@ export const yankiModels = [
 	{
 		cardTemplates: [
 			{
-				Back: '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}{{#ObsidianLink}}\n\n<hr>\n\n{{ObsidianLink}}{{/ObsidianLink}}',
+				Back: '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}{{#Source}}\n\n<hr>\n\n<em>{{Source}}</em>{{/Source}}{{#ObsidianLink}}\n\n<hr>\n\n{{ObsidianLink}}{{/ObsidianLink}}',
 				Front: '{{Front}}',
 				YankiNamespace: '{{YankiNamespace}}',
 			},
 		],
-		inOrderFields: ['Front', 'Back', 'ObsidianLink', 'YankiNamespace'],
+		inOrderFields: ['Front', 'Back', 'Source', 'ObsidianLink', 'YankiNamespace'],
 		modelName: 'Yanki - Basic',
 	},
 	{

@@ -223,7 +223,7 @@ function areFieldsEqual(
 	localFields: Record<string, string>,
 	remoteFields: Record<string, string>,
 ): boolean {
-	const keys = ['Front', 'Back', 'Extra', 'ObsidianLink']
+	const keys = ['Front', 'Back', 'Extra', 'Source', 'ObsidianLink']
 
 	for (const key of keys) {
 		// Both fields have the key (e.g. Extra)
@@ -251,7 +251,7 @@ function areContentFieldsEqual(
 	localFields: Record<string, string>,
 	remoteFields: Record<string, string>,
 ): boolean {
-	const keys = ['Front', 'Back', 'Extra']
+	const keys = ['Front', 'Back', 'Extra', 'Source']
 
 	for (const key of keys) {
 		if (key in localFields && key in remoteFields) {
@@ -467,6 +467,9 @@ async function getRemoteNotesById(
 				Front: ankiNote.fields.Front.value ?? '',
 				...(ankiNote.fields.ObsidianLink !== undefined && {
 					ObsidianLink: ankiNote.fields.ObsidianLink.value ?? '',
+				}),
+				...(ankiNote.fields.Source !== undefined && {
+					Source: ankiNote.fields.Source.value ?? '',
 				}),
 				YankiNamespace: ankiNote.fields.YankiNamespace.value ?? '',
 			},
@@ -824,9 +827,9 @@ export async function syncToAnkiWeb(client: YankiConnect): Promise<void> {
 }
 
 /**
- * Ensures all Yanki Anki models have the ObsidianLink field.
- * Adds the field to any existing models that are missing it, preserving field order.
- * Safe to call on every sync — exits immediately if the field already exists.
+ * Ensures all Yanki Anki models have all expected fields.
+ * Adds any missing fields to existing models, preserving field order.
+ * Safe to call on every sync — exits immediately if all fields already exist.
  */
 export async function ensureObsidianLinkField(
 	client: YankiConnect,
@@ -841,13 +844,15 @@ export async function ensureObsidianLinkField(
 			continue
 		}
 
-		if (!remoteFields.includes('ObsidianLink')) {
-			if (!dryRun) {
-				await client.model.modelFieldAdd({
-					fieldName: 'ObsidianLink',
-					index: [...model.inOrderFields].indexOf('ObsidianLink'),
-					modelName: model.modelName,
-				})
+		for (const fieldName of model.inOrderFields) {
+			if (!remoteFields.includes(fieldName)) {
+				if (!dryRun) {
+					await client.model.modelFieldAdd({
+						fieldName,
+						index: [...model.inOrderFields].indexOf(fieldName),
+						modelName: model.modelName,
+					})
+				}
 			}
 		}
 	}

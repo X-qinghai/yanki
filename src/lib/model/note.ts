@@ -11,6 +11,7 @@ export type YankiNote = Simplify<
 			Extra?: string
 			Front: string
 			ObsidianLink?: string
+			Source?: string
 			YankiNamespace: string
 		}
 		modelName: YankiModelName

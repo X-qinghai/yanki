@@ -265,6 +265,7 @@ export async function getNoteFromMarkdown(
 				obsidianVault !== undefined && frontmatter.noteId !== undefined
 					? buildObsidianLink(obsidianVault, frontmatter.noteId)
 					: '',
+			...(frontmatter.source !== undefined && { Source: frontmatter.source }),
 			YankiNamespace: sanitizedNamespace,
 		},
 		modelName,
